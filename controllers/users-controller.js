@@ -31,7 +31,11 @@ const createNewUser = asyncHandler(async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const userObject = { username, password: hashedPassword, roles };
+  const userObject = {
+    username,
+    password: hashedPassword,
+    roles
+  };
 
   const user = await User.create(userObject);
   if (user) {
@@ -81,6 +85,7 @@ const updateUser = asyncHandler(async (req, res) => {
 // @route DELETW /users
 // @acess Private
 const deleteUser = asyncHandler(async (req, res) => {
+  console.log(req.body)
   const { id } = req.body;
   if (!id) {
     return res.status(400).json({ message: "User ID is required" });
