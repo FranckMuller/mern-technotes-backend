@@ -54,8 +54,16 @@ const registration = async (req, res) => {
       sameSits: "None",
       maxAge: 24 * 7 * 60 * 60 * 1000,
     });
+    
+    const user = {
+      accessToken,
+      id: foundUser._id,
+      username: foundUser.username,
+      active: foundUser.active,
+      roles: foundUser.roles
+    }
 
-    res.json({ accessToken, ...foundUser });
+    res.json(user);
   } else {
     res.status(400).json({ meassage: "Invalid user data recieved" });
   }
