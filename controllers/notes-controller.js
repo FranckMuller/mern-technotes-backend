@@ -19,8 +19,6 @@ const getAllNotes = asyncHandler(async (req, res) => {
     })
   );
 
-  console.log(notesWithUser);
-
   res.json(notesWithUser);
 });
 
@@ -30,11 +28,20 @@ const getAllNotes = asyncHandler(async (req, res) => {
 const createNewNote = asyncHandler(async (req, res) => {
   const { userid, title, text } = req.body;
   console.log("create note [POST]");
-  console.log(userid);
-  console.log(req.body)
 
   if (!userid || !title || !text) {
     return res.status(400).json({ message: "All fileds are required" });
+  }
+
+  const duplicate = await Note.findOne({ title, user: userid })
+    .collation({ locale: "en", strength: 2 })
+    .lean()
+    .exec();
+
+  if (duplicate) {
+    return res
+      .status(409)
+      .json({ message: "you already have note with the same title" });
   }
 
   const note = await Note.create({ title, text, user: userid });
@@ -52,6 +59,17 @@ const updateNote = asyncHandler(async (req, res) => {
   const { id, title, text, completed } = req.body;
   if (!id || !title || !text) {
     return res.status(400).json({ message: "All fields are required" });
+  }
+  
+  const duplicate = await Note.findOne({ title, user: userid })
+    .collation({ locale: "en", strength: 2 })
+    .lean()
+    .exec();
+
+  if (duplicate) {
+    return res
+      .status(409)
+      .json({ message: "you already have note with the same title" });
   }
 
   const note = await Note.findById(id).exec();
@@ -79,7 +97,7 @@ const deleteNote = asyncHandler(async (req, res) => {
   }
 
   const note = await Note.findById(id).exec();
-  console.log(note);
+
   if (!note) {
     return res.status(400).json({ message: "Note not found" });
   }

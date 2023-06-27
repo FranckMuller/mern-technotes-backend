@@ -54,14 +54,14 @@ const registration = async (req, res) => {
       sameSits: "None",
       maxAge: 24 * 7 * 60 * 60 * 1000,
     });
-    
+
     const user = {
       accessToken,
       id: foundUser._id,
       username: foundUser.username,
       active: foundUser.active,
-      roles: foundUser.roles
-    }
+      roles: foundUser.roles,
+    };
 
     res.json(user);
   } else {
@@ -94,7 +94,7 @@ const login = asyncHandler(async (req, res) => {
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "10s" }
   );
   const refreshToken = jwt.sign(
     { username: foundUser.username },
@@ -131,9 +131,11 @@ const refresh = (req, res) => {
     process.env.REFRESH_TOKEN_SECRET,
     asyncHandler(async (err, decoded) => {
       if (err) return res.status(403).json({ message: "Forbidden" });
+
       const foundUser = await User.findOne({
         username: decoded.username,
       }).exec();
+
       if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
 
       const accessToken = jwt.sign(
@@ -147,7 +149,13 @@ const refresh = (req, res) => {
         { expiresIn: "10s" }
       );
 
-      res.json({ accessToken });
+      res.json({
+        username: foundUser.username,
+        id: foundUser._id,
+        active: foundUser.active,
+        roles: foundUser.roles,
+        accessToken,
+      });
     })
   );
 };

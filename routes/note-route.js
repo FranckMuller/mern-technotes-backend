@@ -3,7 +3,7 @@ const router = express.Router();
 const notesController = require("../controllers/notes-controller");
 const verifyJwt = require("../middleware/verify-jwt");
 
-// router.use(verifyJwt);
+router.use(verifyJwt);
 
 router
   .route("/")
