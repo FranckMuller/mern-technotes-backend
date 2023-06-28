@@ -56,23 +56,25 @@ const createNewNote = asyncHandler(async (req, res) => {
 // @route PATCH /notes
 // @acess Private
 const updateNote = asyncHandler(async (req, res) => {
-  const { id, title, text, completed } = req.body;
+  const { id, title, text, completed, userid, ownerid } = req.body;
+
   if (!id || !title || !text) {
     return res.status(400).json({ message: "All fields are required" });
   }
-  
-  const duplicate = await Note.findOne({ title, user: userid })
+
+  const duplicate = await Note.findOne({ title, user: ownerid })
     .collation({ locale: "en", strength: 2 })
     .lean()
     .exec();
 
-  if (duplicate) {
+  const note = await Note.findById(id).exec()
+
+  if (duplicate && !duplicate._id.equals(note._id)) {
     return res
       .status(409)
-      .json({ message: "you already have note with the same title" });
+      .json({ message: "note with this title already exists" });
   }
 
-  const note = await Note.findById(id).exec();
   if (!note) {
     return res.status(400).json({ message: "Note note found" });
   }
