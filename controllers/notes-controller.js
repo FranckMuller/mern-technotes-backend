@@ -56,7 +56,7 @@ const createNewNote = asyncHandler(async (req, res) => {
 // @route PATCH /notes
 // @acess Private
 const updateNote = asyncHandler(async (req, res) => {
-  const { id, title, text, completed, userid, ownerid } = req.body;
+  const { id, title, text, completed, ownerid } = req.body;
 
   if (!id || !title || !text) {
     return res.status(400).json({ message: "All fields are required" });
